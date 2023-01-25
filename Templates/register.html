@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+    <title>Registration</title>
+    <link href="{{ url_for('static',filename='/style.css') }}" type="text/css" rel="stylesheet">
+    <meta name="google-signin-client_id" content="972049336248-900klcfe7evgc6d3ekmhv98qeok0q86t.apps.googleusercontent.com">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+{% endblock %}
+
+{% block body %}
+<div class="registration">
+    <div class="admin-registration">
+        <h5 class="bd-title">1. Register as Admin</h5>
+        <div id="g_id_onload"
+            data-client_id="972049336248-900klcfe7evgc6d3ekmhv98qeok0q86t.apps.googleusercontent.com"
+            data-context="signup"
+            data-ux_mode="popup"
+            data-login_uri="http://localhost:8080/register/0"
+            data-auto_prompt="false">
+        </div>
+        
+        <div class="g_id_signin"
+                data-type="standard"
+                data-shape="rectangular"
+                data-theme="filled_black"
+                data-text="signup_with"
+                data-size="medium"
+                data-logo_alignment="left">
+        </div>
+    </div>
+    <div>
+        <h5 class="bd-title">2. Register Your Family</h5>
+        <form action="\register\1" method="POST" class="registration-form">
+            <div class="rows">
+                <div class="form-row" id="family-registration">
+                    <div class="col">
+                        <input required type="text" class="form-control" name="first_name" placeholder="First name">
+                    </div>
+                    <div class="col">
+                        <input required type="email" class="form-control" name="email" placeholder="Email">
+                    </div>
+                    <div class="col">
+                        <input required type="time"
+                        class="form-control" name="homecoming_time">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button type="button" class="btn btn-dark" onclick="addAnotherFamilyMember()">Add More Members</button>
+                <button class="btn btn-dark" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+    <script>
+        function addAnotherFamilyMember(){
+            $(".rows").append( '<div class="form-row">' + $(".form-row#family-registration").html() + "</div>");
+        }
+    </script>
+
+{% endblock %}
