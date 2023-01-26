@@ -6,4 +6,23 @@
 {% endblock %}
 
 {% block body %}
+<form action="\edit" method="POST" class="edit-form">
+    <div id="form-rows">
+        {% for member in members %}
+        <fieldset class="form-row">
+            <div class="col">
+                <input required type="text" class="form-control" name="first_name" placeholder="{{ member.first_name }}">
+            </div>
+            <div class="col">
+                <input required type="email" class="form-control" name="email" placeholder="{{member.email}}">
+            </div>
+            <div class="col">
+                <input required type="time"
+                class="form-control" name="homecoming_time" placeholder="{{member.homecoming_time}}">
+            </div>
+        </fieldset>
+        {% endfor %}
+    </div>
+    <input class="btn btn-dark" type="submit" value="Submit">
+</form>
 {% endblock %}

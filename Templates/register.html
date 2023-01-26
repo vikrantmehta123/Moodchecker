@@ -33,8 +33,8 @@
     <div>
         <h5 class="bd-title">2. Register Your Family</h5>
         <form action="\register\1" method="POST" class="registration-form">
-            <div class="rows">
-                <div class="form-row" id="family-registration">
+            <div id="form-rows">
+                <fieldset class="form-row" id="family-registration">
                     <div class="col">
                         <input required type="text" class="form-control" name="first_name" placeholder="First name">
                     </div>
@@ -45,19 +45,35 @@
                         <input required type="time"
                         class="form-control" name="homecoming_time">
                     </div>
-                </div>
+                </fieldset>
             </div>
-
-            <div>
-                <button type="button" class="btn btn-dark" onclick="addAnotherFamilyMember()">Add More Members</button>
-                <button class="btn btn-dark" type="submit">Submit</button>
-            </div>
+            <input class="btn btn-dark" type="submit" value="Submit">
         </form>
+        <div>
+            <button type="button" class="btn btn-dark" onclick="addAnotherFamilyMember()">Add More Members</button>
+            
+        </div>
     </div>
 </div>
     <script>
+
         function addAnotherFamilyMember(){
-            $(".rows").append( '<div class="form-row">' + $(".form-row#family-registration").html() + "</div>");
+            var html = 
+            `
+                <fieldset class="form-row">
+                    <div class="col">
+                        <input required type="text" class="form-control" name="first_name" placeholder="First name">
+                    </div>
+                    <div class="col">
+                        <input required type="email" class="form-control" name="email" placeholder="Email">
+                    </div>
+                    <div class="col">
+                        <input required type="time"
+                        class="form-control" name="homecoming_time">
+                    </div> 
+                </fieldset>    
+            `
+            $("#form-rows").append(html);
         }
     </script>
 
