@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Login</title>
+{% endblock %}
+
+{% block body %}
+<div>
+    <div class="admin-registration">
+        <div id="g_id_onload"
+            data-client_id="972049336248-900klcfe7evgc6d3ekmhv98qeok0q86t.apps.googleusercontent.com"
+            data-context="Login"
+            data-ux_mode="popup"
+            data-login_uri="http://localhost:8080/login"
+            data-auto_prompt="false">
+        </div>
+        
+        <div class="g_id_signin"
+                data-type="standard"
+                data-shape="rectangular"
+                data-theme="filled_black"
+                data-text="login_with"
+                data-size="medium"
+                data-logo_alignment="left">
+        </div>
+    </div>
+</div>
+{% endblock %}

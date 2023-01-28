@@ -2,6 +2,7 @@ from main import app
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 import datetime
+import hashlib
 
 db = app.db
 
@@ -25,13 +26,31 @@ class User(db.Model):
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     first_name = sa.Column(sa.String(250), nullable=False)
-    family_id = sa.Column(sa.Integer, sa.ForeignKey("Families.id"))
-    family = relationship("Family", back_populates='family_members')
     email = sa.Column(sa.String, unique=True)
+    authorization_status = sa.Column(sa.Integer)
+    email_hash = sa.Column(sa.BINARY(40))
+    homecoming_time = sa.Column(sa.Time)
+    holiday = sa.Column(sa.Integer)
+
+    family_id = sa.Column(sa.Integer, sa.ForeignKey("Families.id"))
+
+
+    def __init__(self, id, first_name, email, holiday, homecoming_time, authorization_status=0) -> None:
+        self.id = id
+        self.first_name = first_name
+        self.email = email
+        self.authorization_status = authorization_status
+        self.holiday = holiday
+        self.homecoming_time = homecoming_time
+        self.email_hash = hashlib.sha1(email)
+
+    family = relationship("Family", back_populates='family_members')
     moods = relationship("Mood", back_populates='user')
 
     def __repr__(self) -> str:
         return self.first_name
+
+user_email_hash_index = sa.Index("User_Email_Hash_Index", User.email_hash)
 
 class Mood(db.Model):
     __tablename__= "Moods"

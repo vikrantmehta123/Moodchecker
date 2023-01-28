@@ -1,7 +1,16 @@
+
 from main import app
 from flask import render_template, request, session, redirect, make_response, abort, url_for, flash
 from Models.models import *
 from Application.utils import *
+
+import os.path
+from datetime import timedelta
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
 
 CLIENT_ID = app.CLIENT_ID
 app = app.app
@@ -11,17 +20,15 @@ app = app.app
 def index():
     return render_template("index.html")
 
-@app.route("/register/<int:admin_status>", methods=["GET", "POST"])
-def register(admin_status):
+@app.route("/register", methods=["GET", "POST"])
+def register():
     if request.method == "GET":
         flash("Please make sure you provide an email id that is linked with Google Calendar")
         response = make_response(render_template("register.html"))
         response.headers["Referrer-Policy"] = "no-referrer-when-downgrade"
         return response
     else:
-
-        # Check if the admin has registered or not
-        if admin_status == 0:
+        if 'credential' in request.form:
 
             # Step 1: Handling the CSRF issues
             csrf_token_cookie = request.cookies.get('g_csrf_token')
@@ -37,19 +44,20 @@ def register(admin_status):
             token = request.form["credential"]
 
             # Verify the token
-            admin = google_login_authentication(token)
-            if admin:
-                admin_status = 1
-                return redirect(url_for("register", admin_status=1))
+            idinfo = verify_google_login(token)
+            if idinfo["verified_email"]:
+                admin = get_userinfo(idinfo)
+                session['admin'] = admin
+                return redirect(url_for("register"))
             else:
                 return "There was an error with the login"
-        else:
-            # If admin has registerd already, enter the data to database
-            if 'admin' in session:
-                # TODO: Enter the data to the database, and send a mail to all the users for authorization of Google calendar
-                flash("We will need to add a reminder to Google Calendar, which requires your permission. \nPlease authorize this by using the mail id provided.")
-                pass
-            return render_template("register.html")
+
+        # If admin has registerd already, enter the data to database
+        if 'admin' in session:
+            # TODO: Enter the data to the database, and send a mail to all the users for authorization of Google calendar
+            flash("We will need to add a reminder to Google Calendar, which requires your permission. \nPlease authorize this by using the mail id provided.")
+            pass
+        return render_template("register.html")
 
 @app.route("/moods", methods=["GET", "POST"])
 def moods():
@@ -68,9 +76,10 @@ def login():
     else:
         # TODO: Implement logic for checking whether the logged in user is a valid admin or a regular user, and set the keys accordingly
         token = request.form["credential"]
-        admin = google_login_authentication(token)
-        if admin:
-            session['admin'] = admin
+        idinfo = verify_google_login(token)
+        if idinfo["verified_email"]:
+            admin = get_userinfo(idinfo)
+            session['admin'] =admin
         else:
             return "There was an error with the login"
 
@@ -107,11 +116,6 @@ def reports():
 
 @app.route("/auth")
 def auth():
-    import os.path
-
-    from google.auth.transport.requests import Request
-    from google.oauth2.credentials import Credentials
-    from google_auth_oauthlib.flow import Flow
 
     SCOPES = "openid https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
     creds = None
@@ -140,11 +144,10 @@ def handle_response():
     if session:
         if request.args.get('state', '') != session['state']:
             abort('CSRF Attack warning!')
-            
-        from google_auth_oauthlib.flow import Flow
-        from googleapiclient.discovery import build
 
         SCOPES = "openid https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
+        
+        # If the user has authorized, then update the authorization status, and create events in his calendar
         if 'code' in request.args:
             code = request.args.get("code")
             flow = Flow.from_client_secrets_file(
@@ -153,6 +156,22 @@ def handle_response():
                     redirect_uri="http://localhost:8080/handle_response")
             flow.fetch_token(code=code)
             credentials = flow.credentials
+            calendar_service = build("calendar", "v3", credentials=credentials)
+            user_info_service = build('oauth2', 'v2', credentials=credentials)
+            idinfo = user_info_service.userinfo().get().execute()
+            if idinfo["verified_email"]:
+                user = get_userinfo(idinfo)
+                user = User(0, datetime.time(18, 30))
+                # TODO:
+                # user = models.User.get_user(user["email"]) --> Convert the email into hash, search db, and return User instance
+                
+                if user.authorization_status == 0:
+                    # models.User.update_authorization_status(1) --> Update the authorization status to authorized
+                    event = create_recurring_event(user.holiday, user.homecoming_time)
+                    calendar_service.events().insert(calendarId='primary', body=event).execute()
+            else:
+                return "There was a problem with the login"
+
             return "access granted"
         else:
             return "access denied"

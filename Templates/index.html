@@ -10,7 +10,7 @@
       <h1 class="cover-heading">Welcome to Moodchecker...</h1>
       <p class="lead">When it comes to family, no one should miss a trick. Register to keep track of your family's moods, and support each other better.</p>
       <p class="lead">
-        <a href="{{ url_for('register', admin_status=0) }}" class="btn btn-lg btn-secondary">Register</a>
+        <a href="{{ url_for('register') }}" class="btn btn-lg btn-secondary">Register</a>
       </p>
     </main>
 
@@ -18,4 +18,10 @@
       <div class="inner">
       </div>
     </footer>
+
+    <script>
+      $(document).ready(function(){
+        $("#navbar-home").addClass("active");
+      })
+    </script>
 {% endblock %}
