@@ -5,7 +5,6 @@ from Models.models import *
 from Application.utils import *
 
 import os.path
-from datetime import timedelta
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -14,7 +13,7 @@ from googleapiclient.discovery import build
 
 CLIENT_ID = app.CLIENT_ID
 app = app.app
-
+SCOPES = "openid https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
 
 @app.route("/", methods=["GET"])
 def index():
@@ -67,7 +66,16 @@ def moods():
             return redirect(url_for("login"))
         return render_template("moods.html")
     else:
-        pass
+        # TODO:
+            # Update Database
+        flow = Flow.from_client_secrets_file(
+                "D:\Moodchecker\credentials.json",
+                scopes=SCOPES,
+                redirect_uri="http://localhost:8080/handle_response")
+        auth_uri, state = flow.authorization_url(access_type='offline', prompt="none", include_granted_scopes='true')
+        session['state'] = state
+        session["prev_url"] = "moods"
+        return redirect(auth_uri)
     
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -88,6 +96,79 @@ def login():
             return redirect(url_for(session["next_url"]))
         else:
             return "Some unknown error occurred"
+
+
+@app.route("/auth")
+def auth():
+    creds = None
+
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = Flow.from_client_secrets_file(
+                "D:\Moodchecker\credentials.json",
+                scopes=SCOPES,
+                redirect_uri="http://localhost:8080/handle_response")
+            auth_uri, state = flow.authorization_url(access_type='offline', prompt="login", include_granted_scopes='true')
+            session['state'] = state
+            session["prev_url"] = "auth"
+            return redirect(auth_uri)
+
+
+@app.route("/handle_response")
+def handle_response():
+    if session:
+        if request.args.get('state', '') != session['state']:
+            abort('CSRF Attack warning!')
+
+        # Check if the user has authorized or not
+        if 'code' in request.args:
+            code = request.args.get("code")
+            flow = Flow.from_client_secrets_file(
+                    "D:\Moodchecker\credentials.json",
+                    scopes=SCOPES,
+                    redirect_uri="http://localhost:8080/handle_response")
+            flow.fetch_token(code=code)
+            credentials = flow.credentials
+
+            # Build services to make API Calls
+            calendar_service = build("calendar", "v3", credentials=credentials)
+            user_info_service = build('oauth2', 'v2', credentials=credentials)
+
+            # Get basic info of the user and instantiate a user object
+            idinfo = user_info_service.userinfo().get().execute()
+            if idinfo["verified_email"]:
+                user = get_userinfo(idinfo)
+                user = User.get_user_by_email(user["email"])
+                    
+                event = create_recurring_event(user.holiday, user.homecoming_time)
+                # If the request came from the authorization page, change authorization status and create a recurring event 
+                if session["prev_url"] == "auth":
+                    if user.authorization_status == 0:
+                        user.update_authorization_status(1)
+                        calendar_service.events().insert(calendarId='primary', body=event).execute()
+
+                # If the request came from the moods page, then check whether you need to create recurring event
+                else:
+                    if user.reminders_till <= datetime.today():
+                        calendar_service.events().insert(calendarId='primary', body=event).execute()
+                        user.update_reminder_till_date(datetime.today() + datetime.timedelta(10))
+            else:
+                return "There was a problem with the login"
+
+            return "access granted"
+        else:
+            return "access denied"
+    else:
+        return "some unknown error occurred"
+
 
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
@@ -112,68 +193,3 @@ def reports():
         # TODO: Implemnt a function to get the last month's data
         report = []
         return render_template("reports.html", report= report)
-
-
-@app.route("/auth")
-def auth():
-
-    SCOPES = "openid https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
-    creds = None
-
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = Flow.from_client_secrets_file(
-                "D:\Moodchecker\credentials.json",
-                scopes=SCOPES,
-                redirect_uri="http://localhost:8080/handle_response")
-            auth_uri, state = flow.authorization_url(access_type='offline', prompt="login", include_granted_scopes='true')
-            session['state'] = state
-            return redirect(auth_uri)
-
-
-@app.route("/handle_response")
-def handle_response():
-    if session:
-        if request.args.get('state', '') != session['state']:
-            abort('CSRF Attack warning!')
-
-        SCOPES = "openid https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
-        
-        # If the user has authorized, then update the authorization status, and create events in his calendar
-        if 'code' in request.args:
-            code = request.args.get("code")
-            flow = Flow.from_client_secrets_file(
-                    "D:\Moodchecker\credentials.json",
-                    scopes=SCOPES,
-                    redirect_uri="http://localhost:8080/handle_response")
-            flow.fetch_token(code=code)
-            credentials = flow.credentials
-            calendar_service = build("calendar", "v3", credentials=credentials)
-            user_info_service = build('oauth2', 'v2', credentials=credentials)
-            idinfo = user_info_service.userinfo().get().execute()
-            if idinfo["verified_email"]:
-                user = get_userinfo(idinfo)
-                user = User(0, datetime.time(18, 30))
-                # TODO:
-                # user = models.User.get_user(user["email"]) --> Convert the email into hash, search db, and return User instance
-                
-                if user.authorization_status == 0:
-                    # models.User.update_authorization_status(1) --> Update the authorization status to authorized
-                    event = create_recurring_event(user.holiday, user.homecoming_time)
-                    calendar_service.events().insert(calendarId='primary', body=event).execute()
-            else:
-                return "There was a problem with the login"
-
-            return "access granted"
-        else:
-            return "access denied"
-    else:
-        return "some unknown error occurred"

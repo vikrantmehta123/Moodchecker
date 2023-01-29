@@ -31,14 +31,15 @@ class User(db.Model):
     email_hash = sa.Column(sa.BINARY(40))
     homecoming_time = sa.Column(sa.Time)
     holiday = sa.Column(sa.Integer)
+    reminders_till = sa.Column(sa.Date, nullable=True)
 
     family_id = sa.Column(sa.Integer, sa.ForeignKey("Families.id"))
 
-
-    def __init__(self, id, first_name, email, holiday, homecoming_time, authorization_status=0) -> None:
+    def __init__(self, id, first_name, email, holiday, homecoming_time, reminders_till, authorization_status=0) -> None:
         self.id = id
         self.first_name = first_name
         self.email = email
+        self.reminders_till = reminders_till
         self.authorization_status = authorization_status
         self.holiday = holiday
         self.homecoming_time = homecoming_time
@@ -46,6 +47,29 @@ class User(db.Model):
 
     family = relationship("Family", back_populates='family_members')
     moods = relationship("Mood", back_populates='user')
+
+    def update_authorization_status(self, new_status):
+        """ Updates the authorization status of the given user """
+        self.authorization_status = new_status
+        db.session.commit()
+
+    def add_mood_update(self, mood):
+        """ Inserts a record in the moods table for the given user """
+        self.moods.append(mood)
+        db.session.commit()
+        return
+
+    def update_reminder_till_date(self, new_date):
+        """ Updates the date till which the google calendar reminders are set """
+        self.reminders_till = new_date
+        db.session.commit()
+        return 
+
+    @staticmethod
+    def get_user_by_email(email):
+        """ Returns the User instance for the given email """
+        email_hash = hashlib.sha1(email)
+        return User.query.filter_by(email_hash=email_hash).first()
 
     def __repr__(self) -> str:
         return self.first_name
@@ -59,6 +83,7 @@ class Mood(db.Model):
     user_id = sa.Column(sa.Integer, sa.ForeignKey("Users.id"))
     mood = sa.Column(sa.Integer, nullable=False)
     date = sa.Column(sa.Date, nullable=False, default=datetime.date.today())
+    
     user = relationship("User", back_populates='moods')
 
     def __init__(self, id, user_id, mood, date) -> None:
@@ -66,5 +91,6 @@ class Mood(db.Model):
         self.user_id = user_id
         self.mood = mood
         self.date = date
+
 
     
