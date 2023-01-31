@@ -1,6 +1,6 @@
 
 from main import app
-from flask import render_template, request, session, redirect, make_response, abort, url_for, flash
+from flask import render_template, request, session, redirect, make_response, abort, url_for, flash, jsonify
 from Models.models import *
 from Application.utils import *
 
@@ -44,25 +44,28 @@ def register():
 
             # Verify the token
             idinfo = verify_google_login(token)
-            if idinfo["verified_email"]:
-                admin = get_userinfo(idinfo)
-                session['admin'] = admin
+            if idinfo["email_verified"]:
+                user = get_userinfo(idinfo)
+                session['user'] = user
                 return redirect(url_for("register"))
             else:
                 return "There was an error with the login"
 
-        # If admin has registerd already, enter the data to database
-        if 'admin' in session:
-            # TODO: Enter the data to the database, and send a mail to all the users for authorization of Google calendar
-            flash("We will need to add a reminder to Google Calendar, which requires your permission. \nPlease authorize this by using the mail id provided.")
-            pass
-        return render_template("register.html")
+        data = request.get_json()
+        for member in data["familyMembers"]:
+            first_name = member['first_name']
+            email = member['email']
+            homecoming_time = member['homecoming_time']
+
+            # Add the data to the database
+            # ...
+
+        return jsonify({"message": "Data received successfully"})
 
 @app.route("/moods", methods=["GET", "POST"])
 def moods():
     if request.method == "GET":
         if 'user' not in session:
-            session["next_url"] = "moods"
             return redirect(url_for("login"))
         return render_template("moods.html")
     else:
@@ -86,16 +89,17 @@ def login():
         token = request.form["credential"]
         idinfo = verify_google_login(token)
         if idinfo["verified_email"]:
-            admin = get_userinfo(idinfo)
-            session['admin'] =admin
+            user = get_userinfo(idinfo)
+            session['user'] = user
+            # Redirect users to appropriate page
+            return redirect(request.referrer or url_for("index"))
         else:
             return "There was an error with the login"
 
-        # Redirect users to appropriate page
-        if 'next_url' in session:
-            return redirect(url_for(session["next_url"]))
-        else:
-            return "Some unknown error occurred"
+@app.route("/logout")
+def logout():
+    if 'user' in session:
+        session.pop('user')
 
 
 @app.route("/auth")
@@ -144,7 +148,7 @@ def handle_response():
 
             # Get basic info of the user and instantiate a user object
             idinfo = user_info_service.userinfo().get().execute()
-            if idinfo["verified_email"]:
+            if idinfo["email_verified"]:
                 user = get_userinfo(idinfo)
                 user = User.get_user_by_email(user["email"])
                     

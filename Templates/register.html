@@ -27,7 +27,7 @@
             data-client_id="972049336248-900klcfe7evgc6d3ekmhv98qeok0q86t.apps.googleusercontent.com"
             data-context="signup"
             data-ux_mode="popup"
-            data-login_uri="http://localhost:8080/register/0"
+            data-login_uri="http://localhost:8080/register"
             data-auto_prompt="false">
         </div>
         
@@ -42,11 +42,11 @@
     </div>
     <div>
         <h5 class="bd-title">2. Register Your Family</h5>
-        <form action="\register\1" method="POST" class="registration-form">
+        <form method="POST" id="user-registration-form" onsubmit="return validateForm()">
             <div id="form-rows">
                 <fieldset class="form-row" id="family-registration">
                     <div class="col">
-                        <input required type="text" class="form-control" name="first_name" placeholder="First name">
+                        <input required type="text" class="form-control" name="first_name" value="" placeholder="First name">
                     </div>
                     <div class="col">
                         <input required type="email" class="form-control" name="email" placeholder="Email">
@@ -54,6 +54,9 @@
                     <div class="col">
                         <input required type="time"
                         class="form-control" name="homecoming_time">
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-danger" onclick="deleteFamilyMember(this)">Delete</button>
                     </div>
                 </fieldset>
             </div>
@@ -64,31 +67,112 @@
         </form>
     </div>
 </div>
+
+    <!--Mark the register navbar tab as active-->
     <script>
         $(document).ready(function(){
             $("#navbar-register").addClass("active");
         })
     </script>
 
+    <!-- Upon submitting the form, send an ajax request to the server -->
     <script>
+        $(document).ready(function() {
+            $('#user-registration-form').submit(function(event) {
+                event.preventDefault();
+                var familyMembers = [];
+                $('#form-rows fieldset').each(function() {
+                var member = {};
+                member.first_name = $(this).find('input[name="first_name"]').val();
+                member.email = $(this).find('input[name="email"]').val();
+                member.homecoming_time = $(this).find('input[name="homecoming_time"]').val();
+                familyMembers.push(member);
+                });
 
-        function addAnotherFamilyMember(){
-            var html = 
-            `
-                <fieldset class="form-row">
-                    <div class="col">
-                        <input required type="text" class="form-control" name="first_name" placeholder="First name">
-                    </div>
-                    <div class="col">
-                        <input required type="email" class="form-control" name="email" placeholder="Email">
-                    </div>
-                    <div class="col">
-                        <input required type="time"
-                        class="form-control" name="homecoming_time">
-                    </div> 
-                </fieldset>    
-            `
-            $("#form-rows").append(html);
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url_for('register') }}",
+                    data: JSON.stringify({ familyMembers: familyMembers }),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function(data) {
+                        console.log(data);
+                        alert("Registration successful!");
+                        window.location.href = "{{ url_for('index') }}";
+                        },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        alert("An error occurred: " + error);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- When user clicks add another member, append another fieldset -->
+    <script>
+        function addAnotherFamilyMember() {
+            // Clone the first fieldset
+            var firstFieldset = document.querySelector('fieldset.form-row');
+            var newFieldset = firstFieldset.cloneNode(true);
+
+
+            // Clear the values of the input fields
+            newFieldset.querySelectorAll('input').forEach(function(input) {
+                input.value = "";
+            });
+
+            // Append the new fieldset to the form
+            document.getElementById('form-rows').appendChild(newFieldset);
+        }
+
+    </script>
+
+    <!-- Removes the fieldset upon deletion -->
+    <script>
+        function deleteFamilyMember(element) {
+            if (document.querySelectorAll(".form-row").length > 1){
+                $(element).closest("fieldset").remove();
+            }
+        }
+    </script>
+
+    <!-- Basic validation on the form inputs -->
+    <script>
+        function validateForm() {
+            var fieldsets = document.getElementsByClassName("form-row");
+            var errorMessage = "";
+
+            for (var i = 0; i < fieldsets.length; i++) {
+                var firstName = fieldsets[i].getElementsByClassName("form-control")[0].value;
+                var email = fieldsets[i].getElementsByClassName("form-control")[1].value;
+                var homecomingTime = fieldsets[i].getElementsByClassName("form-control")[2].value;
+
+                // Validate first name
+                if (!firstName) {
+                errorMessage += "First name is required for family member " + (i + 1) + ".\n";
+                }
+
+                // Validate email
+                if (!email) {
+                errorMessage += "Email is required for family member " + (i + 1) + ".\n";
+                } else if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+                errorMessage += "Email is not in the correct format for family member " + (i + 1) + ".\n";
+                }
+
+                // Validate homecoming time
+                if (!homecomingTime) {
+                errorMessage += "Homecoming time is required for family member " + (i + 1) + ".\n";
+                }
+            }
+
+            // Display error message if there are any errors
+            if (errorMessage) {
+                alert(errorMessage);
+                return false;
+            }
+
+            // If there are no errors, submit the form
+            return true;
         }
     </script>
 
