@@ -9,9 +9,7 @@
     .climate-message{
         font-family: ProximaNovaSoft, sans-serif;
         display: flex;
-        margin-left:200px;
-        margin-right: 200px;
-        margin-top: 37vh;
+        margin-top: 6rem;
         align-items: center;
         justify-content: center;
         padding:20px;
@@ -25,9 +23,15 @@
         padding:25px;
     }
     .moods{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
         display: block;
-        width: 4.75em;
-        height: 4.75em;
+        width: 5.75em;
+        height: 5.75em;
         margin: 0 0.85em;
         padding: 0.015em;
         background: #FFFFFF;
@@ -40,8 +44,18 @@
         outline: none !important;
         outline-color: initial !important;
         outline-style: none !important;
-        outline-width: initial !important;
-        
+        outline-width: initial !important; 
+    }
+    svg{
+        width: 100%;
+        height: 100%;
+    }
+    button{
+        border:none;
+        border-radius:2.875em; 
+        width: 5.75em;
+        height: 5.75em; 
+        cursor: pointer;
     }
     .moods:hover{
         transform: scale(1.1);
@@ -55,49 +69,38 @@
     .sad-mood{
         fill:#d95b5d;
     }
-    button{
-        border:none;
-        border-radius:1.875em; 
-        width: 4.75em;
-        height: 4.75em; ;
-        padding: .025em; 
-        margin:0.475em;
-        cursor: pointer;
-    }
+
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="climate-message">How are you feeling today?</div>
+    <div class="climate-message">How are you feeling today?</div>
     <form method="post" action="/moods"> 
         <div class="container">
             <div class="moods">
                 <button type="submit" name="mood" value="happy">                        
-                    <div class="happy-mood">
-                        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-1 -1 66 66" style="enable-background:new 0 0 64 64;" xml:space="preserve">
-                            <g id="XMLID_1_">
-                                <path id="XMLID_2_" d="M32,8c13.2,0,24,10.8,24,24S45.2,56,32,56S8,45.2,8,32S18.8,8,32,8 M32,0C14.3,0,0,14.3,0,32s14.3,32,32,32
-                                    s32-14.3,32-32S49.7,0,32,0L32,0z"></path>
+                    <svg class="happy-mood" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-1 -1 66 66" style="enable-background:new 0 0 64 64;" xml:space="preserve">
+                        <g id="XMLID_1_">
+                            <path id="XMLID_2_" d="M32,8c13.2,0,24,10.8,24,24S45.2,56,32,56S8,45.2,8,32S18.8,8,32,8 M32,0C14.3,0,0,14.3,0,32s14.3,32,32,32
+                                s32-14.3,32-32S49.7,0,32,0L32,0z"></path>
+                        </g>
+                        <g id="XMLID_3_">
+                            <circle id="XMLID_4_" cx="24" cy="25" r="6"></circle>
+                        </g>
+                        <g id="XMLID_5_">
+                            <circle id="XMLID_6_" cx="40" cy="25" r="6"></circle>
+                        </g>
+                        <g id="XMLID_128_">
+                            <g id="XMLID_130_">
+                                <path id="XMLID_18_" d="M32,51c7.5,0,14-4.3,17.1-10.6c1-2-0.4-4.4-2.7-4.4H17.6c-2.2,0-3.7,2.3-2.7,4.4C18,46.7,24.5,51,32,51z"></path>
                             </g>
-                            <g id="XMLID_3_">
-                                <circle id="XMLID_4_" cx="24" cy="25" r="6"></circle>
-                            </g>
-                            <g id="XMLID_5_">
-                                <circle id="XMLID_6_" cx="40" cy="25" r="6"></circle>
-                            </g>
-                            <g id="XMLID_128_">
-                                <g id="XMLID_130_">
-                                    <path id="XMLID_18_" d="M32,51c7.5,0,14-4.3,17.1-10.6c1-2-0.4-4.4-2.7-4.4H17.6c-2.2,0-3.7,2.3-2.7,4.4C18,46.7,24.5,51,32,51z"></path>
-                                </g>
-                            </g>
-                        </svg>
-                    </div>
+                        </g>
+                    </svg>         
                 </button>
             </div>
             <div class="moods">
                 <button type="submit" name="mood" value="neutral">
-                    <div class="neutral-mood">
-                        <div class="u-icon"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-1 -1 66 66" style="enable-background:new 0 0 64 64;" xml:space="preserve">
+                       <svg class="neutral-mood u-icon" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-1 -1 66 66" style="enable-background:new 0 0 64 64;" xml:space="preserve">
                             <g id="XMLID_7_">
                                 <path id="XMLID_8_" d="M32,8c13.2,0,24,10.8,24,24S45.2,56,32,56S8,45.2,8,32S18.8,8,32,8 M32,0C14.3,0,0,14.3,0,32s14.3,32,32,32
                                     s32-14.3,32-32S49.7,0,32,0L32,0z"></path>
@@ -111,38 +114,32 @@
                             <g id="XMLID_126_">
                                 <path id="XMLID_283_" d="M43,46H21c-2.2,0-4-1.8-4-4s1.8-4,4-4h22c2.2,0,4,1.8,4,4S45.2,46,43,46z"></path>
                             </g>
-                            </svg>
-                        </div>
-                    </div>
+                        </svg>
                 </button>
             </div>
             <div class="moods">
                 <button type="submit" name="mood" value="sad">
-                    <div class="sad-mood">
-                        <div class="u-icon">
-                            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-1 -1 66 66" style="enable-background:new 0 0 64 64;" xml:space="preserve">
-                            <g id="XMLID_26_">
-                                <path id="XMLID_14_" d="M32,8c13.2,0,24,10.8,24,24S45.2,56,32,56S8,45.2,8,32S18.8,8,32,8 M32,0C14.3,0,0,14.3,0,32s14.3,32,32,32
-                                    s32-14.3,32-32S49.7,0,32,0L32,0z"></path>
+                    <svg class="sad-mood u-icon" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-1 -1 66 66" style="enable-background:new 0 0 64 64;" xml:space="preserve">
+                        <g id="XMLID_26_">
+                            <path id="XMLID_14_" d="M32,8c13.2,0,24,10.8,24,24S45.2,56,32,56S8,45.2,8,32S18.8,8,32,8 M32,0C14.3,0,0,14.3,0,32s14.3,32,32,32
+                                s32-14.3,32-32S49.7,0,32,0L32,0z"></path>
+                        </g>
+                        <g id="XMLID_25_">
+                            <circle id="XMLID_15_" cx="24" cy="25" r="6"></circle>
+                        </g>
+                        <g id="XMLID_24_">
+                            <circle id="XMLID_16_" cx="40" cy="25" r="6"></circle>
+                        </g>
+                        <g id="XMLID_171_">
+                            <g id="XMLID_144_">
+                                <path id="XMLID_282_" d="M43,47c-0.8,0-1.6-0.2-2.3-0.7c-2.5-1.8-5.5-2.8-8.7-2.8s-6.1,1-8.7,2.8c-1.8,1.3-4.3,0.9-5.6-0.9
+                                    c-1.3-1.8-0.9-4.3,0.9-5.6c3.9-2.8,8.5-4.2,13.3-4.2s9.4,1.5,13.3,4.2c1.8,1.3,2.2,3.8,0.9,5.6C45.5,46.4,44.2,47,43,47z"></path>
                             </g>
-                            <g id="XMLID_25_">
-                                <circle id="XMLID_15_" cx="24" cy="25" r="6"></circle>
-                                </g>
-                                <g id="XMLID_24_">
-                                    <circle id="XMLID_16_" cx="40" cy="25" r="6"></circle>
-                                </g>
-                                <g id="XMLID_171_">
-                                    <g id="XMLID_144_">
-                                        <path id="XMLID_282_" d="M43,47c-0.8,0-1.6-0.2-2.3-0.7c-2.5-1.8-5.5-2.8-8.7-2.8s-6.1,1-8.7,2.8c-1.8,1.3-4.3,0.9-5.6-0.9
-                                            c-1.3-1.8-0.9-4.3,0.9-5.6c3.9-2.8,8.5-4.2,13.3-4.2s9.4,1.5,13.3,4.2c1.8,1.3,2.2,3.8,0.9,5.6C45.5,46.4,44.2,47,43,47z"></path>
-                                    </g>
-                                </g>
-                                </svg>
-                            </div>
-                        </div>
+                        </g>
+                    </svg>
+  
                 </button>
             </div>
         </div>
     </form>
-</div>  
 {% endblock %}

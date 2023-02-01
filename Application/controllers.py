@@ -66,7 +66,7 @@ def register():
 def moods():
     if request.method == "GET":
         if 'user' not in session:
-            return redirect(url_for("login"))
+            return redirect(url_for("login", login_url=url_for("moods")))
         return render_template("moods.html")
     else:
         # TODO:
@@ -80,19 +80,19 @@ def moods():
         session["prev_url"] = "moods"
         return redirect(auth_uri)
     
-@app.route("/login", methods=["GET", "POST"])
-def login():
+@app.route("/login<request_url>", methods=["GET", "POST"])
+def login(request_url):
     if request.method == "GET":
         return render_template("login.html")
     else:
         # TODO: Implement logic for checking whether the logged in user is a valid admin or a regular user, and set the keys accordingly
         token = request.form["credential"]
         idinfo = verify_google_login(token)
-        if idinfo["verified_email"]:
+        if idinfo["email_verified"]:
             user = get_userinfo(idinfo)
             session['user'] = user
             # Redirect users to appropriate page
-            return redirect(request.referrer or url_for("index"))
+            return redirect(request_url)
         else:
             return "There was an error with the login"
 
@@ -176,9 +176,8 @@ def handle_response():
 
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
-    if 'admin' not in session:
-        session["next_url"] = "login"
-        return redirect(url_for('login'))
+    if 'user' not in session:
+        return redirect(url_for('login'), request_url=url_for("edit"))
     if request.method == "GET":
         # TODO: Implement a function to get family members of from the data
         members = []
@@ -189,9 +188,8 @@ def edit():
 
 @app.route("/reports", methods=["GET","POST"])
 def reports():
-    if 'admin' not in session:
-        session["next_url"] = "reports"
-        return redirect(url_for('login'))
+    if 'user' not in session:
+        return redirect(url_for('login', request_url=url_for("reports")))
 
     if request.method == "GET":
         # TODO: Implemnt a function to get the last month's data
