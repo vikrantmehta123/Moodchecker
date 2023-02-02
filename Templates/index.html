@@ -6,6 +6,17 @@
 {% endblock %}
 
 {% block body %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      {% for message in get_flashed_messages() %}
+          {% if message %}
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          {% endif %}
+      {% endfor %}
+    </div>
+
     <main role="main" class="inner cover mt-auto">
       <h1 class="cover-heading">Welcome to Moodchecker...</h1>
       <p class="lead">When it comes to family, no one should miss a trick. Register to keep track of your family's moods, and support each other better.</p>

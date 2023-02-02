@@ -64,22 +64,29 @@ def register():
 
 @app.route("/moods", methods=["GET", "POST"])
 def moods():
+    if 'user' not in session:
+        return redirect(url_for("login", login_url=url_for("moods")))
     if request.method == "GET":
-        if 'user' not in session:
-            return redirect(url_for("login", login_url=url_for("moods")))
         return render_template("moods.html")
     else:
-        # TODO:
-            # Update Database
-        flow = Flow.from_client_secrets_file(
-                "D:\Moodchecker\credentials.json",
-                scopes=SCOPES,
-                redirect_uri="http://localhost:8080/handle_response")
-        auth_uri, state = flow.authorization_url(access_type='offline', prompt="none", include_granted_scopes='true')
-        session['state'] = state
-        session["prev_url"] = "moods"
-        return redirect(auth_uri)
+        mood = (int)(request.form.get('mood'))
+        user = User.get_user_by_email(user['email'])
+        user.add_mood_update(mood)
+        readable_mood = mood_converter(mood)
+        send_mood_update(user.first_name, readable_mood, user.family)
+
+        if user.reminders_till <= datetime.today():
+            flow = Flow.from_client_secrets_file(
+                    "D:\Moodchecker\credentials.json",
+                    scopes=SCOPES,
+                    redirect_uri="http://localhost:8080/handle_response")
+            auth_uri, state = flow.authorization_url(access_type='offline', prompt="none", include_granted_scopes='true')
+            session['state'] = state
+            session["prev_url"] = "moods"
+            return redirect(auth_uri)
+        return redirect(url_for("index"))
     
+# region Login/ Authorization
 @app.route("/login<request_url>", methods=["GET", "POST"])
 def login(request_url):
     if request.method == "GET":
@@ -173,6 +180,7 @@ def handle_response():
     else:
         return "some unknown error occurred"
 
+# endregion Google Login/ Authorization
 
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
