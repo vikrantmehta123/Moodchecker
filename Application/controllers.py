@@ -23,7 +23,7 @@ def index():
 def register():
     if request.method == "GET":
         flash("Please make sure you provide an email id that is linked with Google Calendar")
-        response = make_response(render_template("register.html"))
+        response = make_response(render_template("register.html", client_id=CLIENT_ID))
         response.headers["Referrer-Policy"] = "no-referrer-when-downgrade"
         return response
     else:
@@ -87,10 +87,10 @@ def moods():
         return redirect(url_for("index"))
     
 # region Login/ Authorization
-@app.route("/login<request_url>", methods=["GET", "POST"])
+@app.route("/login/<request_url>", methods=["GET", "POST"])
 def login(request_url):
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("login.html", client_id=CLIENT_ID)
     else:
         # TODO: Implement logic for checking whether the logged in user is a valid admin or a regular user, and set the keys accordingly
         token = request.form["credential"]
@@ -185,7 +185,7 @@ def handle_response():
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
     if 'user' not in session:
-        return redirect(url_for('login'), request_url=url_for("edit"))
+        return redirect(url_for('login', request_url=url_for('edit')))
     if request.method == "GET":
         # TODO: Implement a function to get family members of from the data
         members = []

@@ -4,7 +4,7 @@
 {% block head %}
     <title>Registration</title>
     <link href="{{ url_for('static',filename='/style.css') }}" type="text/css" rel="stylesheet">
-    <meta name="google-signin-client_id" content="972049336248-900klcfe7evgc6d3ekmhv98qeok0q86t.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="{{ client_id }}">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -50,7 +50,7 @@
     <div class="admin-registration">
         <h5 class="bd-title">1. Register as Admin</h5>
         <div id="g_id_onload"
-            data-client_id="972049336248-900klcfe7evgc6d3ekmhv98qeok0q86t.apps.googleusercontent.com"
+            data-client_id="{{ client_id }}"
             data-context="signup"
             data-ux_mode="popup"
             data-login_uri="http://localhost:8080/register"
@@ -81,6 +81,17 @@
                         <input required type="time"
                         class="form-control" name="homecoming_time">
                     </div>
+                    <div class="col">
+                        <select class="form-select btn" aria-labelledby="dropdownMenuButton">
+                            <option class="dropdown-item" value="6">Sunday</option>
+                            <option class="dropdown-item" value="0">Monday</option>
+                            <option class="dropdown-item" value="1">Tuesday</option>
+                            <option class="dropdown-item" value="2">Wednesday</option>
+                            <option class="dropdown-item" value="3">Thursday</option>
+                            <option class="dropdown-item" value="4">Friday</option>
+                            <option class="dropdown-item" value="5">Saturday</option>
+                        </select>
+                      </div>
                     <div class="col">
                         <button type="button" class="btn btn-danger" onclick="deleteFamilyMember(this)">Delete</button>
                     </div>
