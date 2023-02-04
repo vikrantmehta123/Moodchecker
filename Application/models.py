@@ -28,22 +28,21 @@ class User(db.Model):
     first_name = sa.Column(sa.String(250), nullable=False)
     email = sa.Column(sa.String, unique=True)
     authorization_status = sa.Column(sa.Integer)
-    email_hash = sa.Column(sa.BINARY(40))
+    email_hash = sa.Column(sa.String(40))
     homecoming_time = sa.Column(sa.Time)
     holiday = sa.Column(sa.Integer)
     reminders_till = sa.Column(sa.Date, nullable=True)
 
     family_id = sa.Column(sa.Integer, sa.ForeignKey("Families.id"))
 
-    def __init__(self, id, first_name, email, holiday, homecoming_time, reminders_till, authorization_status=0) -> None:
-        self.id = id
+    def __init__(self, first_name, email, holiday, homecoming_time, reminders_till=None, authorization_status=0) -> None:
         self.first_name = first_name
         self.email = email
         self.reminders_till = reminders_till
         self.authorization_status = authorization_status
         self.holiday = holiday
-        self.homecoming_time = homecoming_time
-        self.email_hash = hashlib.sha1(email)
+        self.homecoming_time = string_to_time_converter(homecoming_time)
+        self.email_hash = hashlib.sha1(email.encode()).hexdigest()
 
     family = relationship("Family", back_populates='family_members')
     moods = relationship("Mood", back_populates='user')
@@ -94,3 +93,18 @@ class Mood(db.Model):
 
 
     
+def string_to_time_converter(time):
+    split = time.split(":")
+    print(split)
+    hour = (int)(split[0])
+    minutes = (int)(split[1])
+    return datetime.time(hour, minutes)
+
+def init_db():
+    db.drop_all()
+    db.create_all()
+
+if __name__=="__main__":
+    with app.app.app_context():
+
+        init_db()

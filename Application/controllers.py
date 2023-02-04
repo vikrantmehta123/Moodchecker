@@ -1,8 +1,7 @@
-
 from main import app
 from flask import render_template, request, session, redirect, make_response, abort, url_for, flash, jsonify
-from Models.models import *
-from Application.utils import *
+from models import *
+from utils import *
 
 import os.path
 
@@ -12,6 +11,7 @@ from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 
 CLIENT_ID = app.CLIENT_ID
+db = app.db
 app = app.app
 SCOPES = "openid https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
 
@@ -52,14 +52,17 @@ def register():
                 return "There was an error with the login"
 
         data = request.get_json()
+        recipients = [ ]
         for member in data["familyMembers"]:
             first_name = member['first_name']
             email = member['email']
             homecoming_time = member['homecoming_time']
-
-            # Add the data to the database
-            # ...
-
+            holiday = (int)(member['holiday'])
+            user = User(first_name, email, homecoming_time=homecoming_time, holiday=holiday)
+            recipients.append(user)
+            db.session.add(user)   
+        db.session.commit()
+        send_auth_email(recipients)
         return jsonify({"message": "Data received successfully"})
 
 @app.route("/moods", methods=["GET", "POST"])

@@ -3,7 +3,6 @@
 
 {% block head %}
     <title>Registration</title>
-    <link href="{{ url_for('static',filename='/style.css') }}" type="text/css" rel="stylesheet">
     <meta name="google-signin-client_id" content="{{ client_id }}">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -82,7 +81,7 @@
                         class="form-control" name="homecoming_time">
                     </div>
                     <div class="col">
-                        <select class="form-select btn" aria-labelledby="dropdownMenuButton">
+                        <select class="form-select btn" name="holiday" aria-labelledby="dropdownMenuButton">
                             <option class="dropdown-item" value="6">Sunday</option>
                             <option class="dropdown-item" value="0">Monday</option>
                             <option class="dropdown-item" value="1">Tuesday</option>
@@ -123,6 +122,7 @@
                 member.first_name = $(this).find('input[name="first_name"]').val();
                 member.email = $(this).find('input[name="email"]').val();
                 member.homecoming_time = $(this).find('input[name="homecoming_time"]').val();
+                member.holiday = $(this).find('select[name="holiday"]').val()
                 familyMembers.push(member);
                 });
 
