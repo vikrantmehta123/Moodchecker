@@ -11,7 +11,7 @@ def verify_google_login(token):
     from main import app   
 
     # Verify the token, and return the response
-    idinfo = id_token.verify_oauth2_token(token, requests.Request(), app.CLIENT_ID)
+    idinfo = id_token.verify_oauth2_token(token, requests.Request(), app.CLIENT_ID, clock_skew_in_seconds=5)
     return idinfo
 
 def get_userinfo(google_response):
@@ -27,6 +27,7 @@ def get_userinfo(google_response):
 def create_recurring_event(holiday, time):
     recurrence_rule = create_recurrence_rule(holiday)
     dateTime = create_dateTime(time)
+    print(f"dateTime is {dateTime}")
     event = {
         'summary': 'Mood Update',
         'description': "Let others know of your mood here: http://localhost:8080/moods",
@@ -39,25 +40,41 @@ def create_recurring_event(holiday, time):
             'timeZone': "Asia/Kolkata"
         },
         'recurrence': [
-            f"{recurrence_rule}",
+            f"{recurrence_rule}"
         ],
+        "reminders": {
+            "useDefault" : False,
+            "overrides" : [
+                {
+                    "method" : "popup",
+                    "minutes" : 30
+                }
+            ]
+        }
     }
+    print(f"Recurrence rule is:{recurrence_rule}")
     return event
 
 def create_recurrence_rule(holiday):
     byday = get_byday(holiday)
     end_day = datetime.today() + timedelta(10)
-    end_day = f"{end_day.year}{end_day.month}{end_day.day}T000000Z" 
+    month = end_day.month
+    day = end_day.day
+    if month < 10:
+       month = f"0{month}" 
+    if day < 10:
+        day = f"0{day}"
+    end_day = f"{end_day.year}{month}{day}" 
     rule = f"RRULE:FREQ=DAILY;UNTIL={end_day};BYDAY={byday}"
     return rule
 
 def get_byday(holiday):
     if holiday == 6:
-        return "MO,TU,WE,TU,TH,FR,SA"
+        return "MO,TU,WE,TH,FR,SA"
     elif holiday == 0:
-        return "TU,WE,TU,TH,FR,SA,SU"
+        return "TU,WE,TH,FR,SA,SU"
     elif holiday == 1:
-        return "WE,TU,TH,FR,SA,SU,MO"
+        return "WE,TH,FR,SA,SU,MO"
     elif holiday == 2:
         return "TH,FR,SA,SU,MO,TU"
     elif holiday == 3:
@@ -134,7 +151,6 @@ def send_auth_email(recipients):
             try:
                 msg['TO'] = member.email
                 smtp.send_message(msg)
-                print("mail sent")
                 del msg['TO']
             except smtplib.SMTPRecipientsRefused:
                 errorMails.append(member)

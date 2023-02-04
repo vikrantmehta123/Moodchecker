@@ -158,16 +158,18 @@ def handle_response():
 
             # Get basic info of the user and instantiate a user object
             idinfo = user_info_service.userinfo().get().execute()
-            if idinfo["email_verified"]:
+            if idinfo["verified_email"]:
                 user = get_userinfo(idinfo)
                 user = User.get_user_by_email(user["email"])
-                    
+
                 event = create_recurring_event(user.holiday, user.homecoming_time)
                 # If the request came from the authorization page, change authorization status and create a recurring event 
                 if session["prev_url"] == "auth":
                     if user.authorization_status == 0:
-                        user.update_authorization_status(1)
                         calendar_service.events().insert(calendarId='primary', body=event).execute()
+                        user.update_authorization_status(1)
+                        user.update_reminder_till_date(datetime.today() + timedelta(10))
+
 
                 # If the request came from the moods page, then check whether you need to create recurring event
                 else:
@@ -177,7 +179,7 @@ def handle_response():
             else:
                 return "There was a problem with the login"
 
-            return "access granted"
+            return redirect(url_for('index'), flash("Events created successfully"))
         else:
             return "access denied"
     else:
@@ -185,6 +187,8 @@ def handle_response():
 
 # endregion Google Login/ Authorization
 
+
+# region Pending
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
     if 'user' not in session:
@@ -206,3 +210,5 @@ def reports():
         # TODO: Implemnt a function to get the last month's data
         report = []
         return render_template("reports.html", report= report)
+
+# endregion Pending

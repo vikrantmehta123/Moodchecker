@@ -67,11 +67,11 @@ class User(db.Model):
     @staticmethod
     def get_user_by_email(email):
         """ Returns the User instance for the given email """
-        email_hash = hashlib.sha1(email)
+        email_hash = hashlib.sha1(email.encode()).hexdigest()
         return User.query.filter_by(email_hash=email_hash).first()
 
     def __repr__(self) -> str:
-        return self.first_name
+        return f"{self.first_name}, {self.authorization_status}, {self.email}"
 
 user_email_hash_index = sa.Index("User_Email_Hash_Index", User.email_hash)
 
@@ -95,7 +95,6 @@ class Mood(db.Model):
     
 def string_to_time_converter(time):
     split = time.split(":")
-    print(split)
     hour = (int)(split[0])
     minutes = (int)(split[1])
     return datetime.time(hour, minutes)
@@ -106,5 +105,4 @@ def init_db():
 
 if __name__=="__main__":
     with app.app.app_context():
-
         init_db()
