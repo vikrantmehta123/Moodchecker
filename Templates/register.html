@@ -6,32 +6,7 @@
     <meta name="google-signin-client_id" content="{{ client_id }}">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-    <style>
-        .registration {
-            display: block;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 1rem;
-        }
-
-        .admin-registration {
-            margin-bottom: 2rem;
-        }
-
-        @media (min-width: 576px) {
-            .registration {
-                flex-direction: row;
-                justify-content: center;
-            }
-
-            .admin-registration {
-                margin-right: 2rem;
-            }
-        }
-
-    </style>
-
+    <link href="{{ url_for('static',filename='/style.css') }}" type="text/css" rel="stylesheet">
 {% endblock %}
 
 {% block body %}

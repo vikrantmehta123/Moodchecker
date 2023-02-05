@@ -5,78 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <title>How Are You Feeling Today?</title>
-<style>
-    .climate-message{
-        font-family: ProximaNovaSoft, sans-serif;
-        display: flex;
-        margin-top: 6rem;
-        align-items: center;
-        justify-content: center;
-        padding:20px;
-        color: white;
-        font-size: 3em;
-    }
-    .container{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding:25px;
-    }
-    .moods{
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        display: block;
-        width: 5.75em;
-        height: 5.75em;
-        margin: 0 0.85em;
-        padding: 0.015em;
-        background: #FFFFFF;
-        border: 0;
-        border-radius: 50%;
-        -webkit-transition: all 0.2s ease-in-out;
-        transition: all 0.2s ease-in-out;
-        -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
-        -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
-        outline: none !important;
-        outline-color: initial !important;
-        outline-style: none !important;
-        outline-width: initial !important; 
-    }
-    svg{
-        width: 100%;
-        height: 100%;
-    }
-    button{
-        border:none;
-        border-radius:2.875em; 
-        width: 5.75em;
-        height: 5.75em; 
-        cursor: pointer;
-    }
-    .moods:hover{
-        transform: scale(1.1);
-    }
-    .happy-mood{
-        fill: #7d9100;
-    }
-    .neutral-mood{
-        fill:#FFA600;
-    }
-    .sad-mood{
-        fill:#d95b5d;
-    }
-
-</style>
+<link href="{{ url_for('static',filename='/style.css') }}" type="text/css" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
     <div class="climate-message">How are you feeling today?</div>
     <form method="post" action="/moods"> 
-        <div class="container">
+        <div class="mood-container">
             <div class="moods">
                 <button type="submit" name="mood" value="2">                        
                     <svg class="happy-mood" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-1 -1 66 66" style="enable-background:new 0 0 64 64;" xml:space="preserve">
