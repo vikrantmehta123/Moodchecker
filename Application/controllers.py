@@ -72,13 +72,19 @@ def moods():
     if request.method == "GET":
         return render_template("moods.html")
     else:
-        mood = (int)(request.form.get('mood'))
-        user = User.get_user_by_email(user['email'])
+        print(request.form)
+        mood = Mood()
+        mood.mood = (int)(request.form.get('mood'))
+          
+
+        user = User.get_user_by_email(session['user']['email'])
         user.add_mood_update(mood)
         readable_mood = mood_converter(mood)
-        send_mood_update(user.first_name, readable_mood, user.family)
+        family = user.get_family(user.family_id)
+        print(family)
+        send_mood_update(user.first_name, readable_mood, family)
 
-        if user.reminders_till <= datetime.today():
+        if user.reminders_till <= datetime.today().date():
             flow = Flow.from_client_secrets_file(
                     "D:\Moodchecker\credentials.json",
                     scopes=SCOPES,

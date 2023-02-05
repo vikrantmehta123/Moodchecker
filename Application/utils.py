@@ -15,11 +15,14 @@ def verify_google_login(token):
     return idinfo
 
 def get_userinfo(google_response):
-    user = {
-        "first_name" : google_response["given_name"], 
-        "last_name" : google_response["family_name"], 
-        "email" : google_response["email"]
-    }
+    user = {}
+    if "given_name" in google_response:
+        user['given_name'] = google_response["given_name"]
+    if "family_name" in google_response:
+        user["last_name"] = google_response["family_name"]
+    if "email" not in google_response:
+        raise Exception("Email not given")
+    user['email'] = google_response["email"]
     return user
 # endregion Google Sign-In Functions
 

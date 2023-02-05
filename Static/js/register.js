@@ -60,6 +60,11 @@ function deleteFamilyMember(element) {
     }
 }
 
+// Shows a loading symbol
+function loading(){
+    alert("Please wait while loading");
+}
+
 // Converts the form data into JSON and sends an AJAX request to the backend for submission
 $(document).ready(function() {
     $('#user-registration-form').submit(function(event) {
@@ -77,13 +82,13 @@ $(document).ready(function() {
 
             $.ajax({
                 type: 'POST',
-                url: "{{ url_for('register') }}",
+                url: "http://localhost:8080/register",
                 data: JSON.stringify({ familyMembers: familyMembers }),
                 contentType: 'application/json; charset=utf-8',
                 success: function(data) {
                     console.log(data);
                     alert("Registration successful!");
-                    window.location.href = "{{ url_for('index') }}";
+                    window.location.href = "http://localhost:8080";
                     },
                 error: function(xhr, status, error) {
                     console.error(error);

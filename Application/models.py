@@ -35,7 +35,7 @@ class User(db.Model):
 
     family_id = sa.Column(sa.Integer, sa.ForeignKey("Families.id"))
 
-    def __init__(self, first_name, email, holiday, homecoming_time, reminders_till=None, authorization_status=0) -> None:
+    def __init__(self, first_name, email, holiday, homecoming_time, reminders_till=None, family_id=None, authorization_status=0) -> None:
         self.first_name = first_name
         self.email = email
         self.reminders_till = reminders_till
@@ -43,6 +43,7 @@ class User(db.Model):
         self.holiday = holiday
         self.homecoming_time = string_to_time_converter(homecoming_time)
         self.email_hash = hashlib.sha1(email.encode()).hexdigest()
+        self.family_id = family_id
 
     family = relationship("Family", back_populates='family_members')
     moods = relationship("Mood", back_populates='user')
@@ -64,6 +65,10 @@ class User(db.Model):
         db.session.commit()
         return 
 
+    def get_family(self, family_id):
+        family = User.query.filter_by(family_id=family_id).all()
+        return family
+
     @staticmethod
     def get_user_by_email(email):
         """ Returns the User instance for the given email """
@@ -84,12 +89,6 @@ class Mood(db.Model):
     date = sa.Column(sa.Date, nullable=False, default=datetime.date.today())
     
     user = relationship("User", back_populates='moods')
-
-    def __init__(self, id, user_id, mood, date) -> None:
-        self.id = id
-        self.user_id = user_id
-        self.mood = mood
-        self.date = date
 
 
     
