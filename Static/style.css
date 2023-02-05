@@ -150,7 +150,7 @@ svg{
   width: 100%;
   height: 100%;
 }
-button{
+.mood-btn{
   border:none;
   border-radius:2.875em; 
   width: 5.75em;
