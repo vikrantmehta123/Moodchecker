@@ -195,3 +195,13 @@ Styles for the registration page
       margin-right: 2rem;
   }
 }
+
+.delete-btn {
+  display: flex;
+  align-items: end;
+  padding-bottom: 0.2rem;
+}
+
+.form-row{
+  margin-top: 1.5rem;
+}

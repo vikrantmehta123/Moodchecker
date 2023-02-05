@@ -62,7 +62,7 @@ function deleteFamilyMember(element) {
 
 // Shows a loading symbol
 function loading(){
-    alert("Please wait while loading");
+    alert("Please wait while loading. Click OK.");
 }
 
 // Converts the form data into JSON and sends an AJAX request to the backend for submission

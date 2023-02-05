@@ -49,18 +49,22 @@
         <h5 class="bd-title">2. Register Your Family</h5>
         <form method="POST" id="user-registration-form" onsubmit="return validateForm()">
             <div id="form-rows">
-                <fieldset class="form-row" id="family-registration">
+                <fieldset class="form-row">
                     <div class="col">
+                        <label>First Name</label>
                         <input required type="text" class="form-control" name="first_name" value="" placeholder="First name">
                     </div>
                     <div class="col">
+                        <label>Email</label>
                         <input required type="email" class="form-control" name="email" placeholder="Email">
                     </div>
                     <div class="col">
+                        <label>Homecoming time</label>
                         <input required type="time"
                         class="form-control" name="homecoming_time">
                     </div>
                     <div class="col">
+                        <label>Weekly Holiday</label>
                         <select class="form-select btn" name="holiday" aria-labelledby="dropdownMenuButton">
                             <option class="dropdown-item" value="6">Sunday</option>
                             <option class="dropdown-item" value="0">Monday</option>
@@ -71,7 +75,7 @@
                             <option class="dropdown-item" value="5">Saturday</option>
                         </select>
                       </div>
-                    <div class="col">
+                    <div class="col delete-btn">
                         <button type="button" class="btn btn-danger" onclick="deleteFamilyMember(this)">Delete</button>
                     </div>
                 </fieldset>
